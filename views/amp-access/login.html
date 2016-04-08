@@ -27,11 +27,22 @@
           <div class=label>Password:</div>
           <input type=password name=password value="123456">
         </div>
-        <div class=form-line>
-          <input type=submit value=Login>
-        </div>
+        <fieldset class=form-line>
+          <legend>Redirect type:</legend>
+          <label>
+            <input type=radio name=type value="server" checked />
+            Server
+          </label>
+          <label>
+            <input type=radio name=type value="client" />
+            Browser
+          </label>          
+        </fieldset>
         <input name=returnurl type=hidden value="<% returnUrl %>">
         <input name=rid type=hidden value="<% readerId %>">
+        <div class=form-line>
+          <input type=submit value=Login>
+        </div>        
       </form>
       </main>
     </div>

@@ -65,7 +65,16 @@ router.post('/submit', function(req, res) {
     maxAge: AUTH_COOKIE_MAX_AGE  // 2hr
   });
 
-  res.redirect(returnUrl + '#success=true');
+  var redirectUrl = returnUrl + '#success=true'; 
+  
+  if (req.body.type == "client") { 
+    res.render('amp-access/login-result', {
+      redirectUrl: redirectUrl 
+    });
+  } else {
+    res.redirect(redirectUrl);
+  }
+
 });
 
 router.get('/reset', function(req, res) {
