@@ -27,7 +27,7 @@ var VALID_SOURCE_ORIGINS = [/ampbyexample\.com/g, /amp-by-example-staging\.appsp
  */
 module.exports = function(req, res, next) {
   // Enable CORS only for API requests 
-  if (req.url.indexOf('/api/') > -1) {
+  if (req.url.indexOf('/api/') > -1 || req.url.indexOf('/collect') > -1) {
     // Verify the origin (AMP and publisher domain)
     var requestingOrigin = req.headers.origin;
     if (!isValidOrigin(req, requestingOrigin)) {
@@ -36,14 +36,18 @@ module.exports = function(req, res, next) {
       res.sendStatus(401);
       return;
     }
-    // Verify the source origin (publisher domain)
-    var requestingSourceOrigin = req.query.__amp_source_origin;
-    if (!isValidSourceOrigin(req, requestingSourceOrigin)) {
-      console.log('invalid source origin: ' + requestingSourceOrigin);
-      // The request is not authorized
-      res.sendStatus(401);
-      return;
-    }
+
+    var requestingSourceOrigin;
+    if (req.url.indexOf('/api/') > -1) {
+      // Verify the source origin (publisher domain)
+      requestingSourceOrigin = req.query.__amp_source_origin;
+      if (!isValidSourceOrigin(req, requestingSourceOrigin)) {
+        console.log('invalid source origin: ' + requestingSourceOrigin);
+        // The request is not authorized
+        res.sendStatus(401);
+        return;
+      }
+    }    
     console.log('---- valid requesting origins');
     // Return the allowed requesting origin 
     res.header('Access-Control-Allow-Origin', requestingOrigin);
@@ -51,8 +55,11 @@ module.exports = function(req, res, next) {
     res.header('Access-Control-Allow-Credentials', 'true');
     // Allow the CORS response to contain the "AMP-Access-Control-Allow-Source-Origin" header.
     res.setHeader('Access-Control-Expose-Headers', 'AMP-Access-Control-Allow-Source-Origin');
-    // The source origin that is allowed to read the authorization response 
-    res.setHeader('AMP-Access-Control-Allow-Source-Origin', requestingSourceOrigin);
+
+    if (requestingSourceOrigin) {
+      // The source origin that is allowed to read the authorization response 
+      res.setHeader('AMP-Access-Control-Allow-Source-Origin', requestingSourceOrigin);
+    }
   }
   next();
 };
